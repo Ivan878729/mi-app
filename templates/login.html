@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Ingreso - Municipalidad de Graneros{% endblock %}
+
+{% block extra_css %}
+<style>
+    .flash-message {
+        background-color: rgba(0, 60, 130, 0.9); /* azul oscuro con transparencia */
+        font-size: 0.85rem;
+        padding: 0.6rem 1rem;
+        border-radius: 8px;
+        max-width: 360px;
+        margin: 0 auto;
+    }
+
+    .alert-success {
+        background-color: rgba(40, 167, 69, 0.9); /* verde éxito con transparencia */
+        color: white;
+    }
+
+    .alert-danger {
+        background-color: rgba(220, 53, 69, 0.9); /* rojo error con transparencia */
+        color: white;
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="card login-card shadow-lg p-4">
+    <div class="card-body text-center">
+        <!-- Logo -->
+        <img src="{{ url_for('static', filename='img/logo-muni.png') }}" alt="Logo Municipalidad de Graneros" style="width: 100px; height: auto;" class="mb-3">
+
+       <!-- Flash message como toast arriba, centrado, con fondo semitransparente -->
+        <div id="flash-container" class="position-fixed top-0 start-50 translate-middle-x mt-3" style="z-index: 1060;">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show flash-message shadow-sm text-white border-0 text-center" role="alert">
+                            {% if category == 'success' %}
+                                <i class="bi bi-check-circle-fill me-1"></i>
+                            {% elif category == 'danger' %}
+                                <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                            {% endif %}
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+
+
+
+        <!-- Formulario -->
+        <form method="POST" autocomplete="off">
+
+            {{ csrf_token() }}
+
+            <div class="mb-3 text-start">
+                <label for="usuario" class="form-label">Usuario</label>
+                <input type="text" class="form-control" name="usuario" id="usuario" required>
+            </div>
+            <div class="mb-3 text-start">
+                <label for="clave" class="form-label">Clave</label>
+                <input type="password" class="form-control" name="clave" id="clave" required>
+            </div>
+            <button type="submit" class="btn btn-login w-100">Ingresar</button>
+        </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Oculta automáticamente los mensajes flash después de 2 segundos
+    setTimeout(function () {
+        const flashMessages = document.querySelectorAll('.flash-message');
+        flashMessages.forEach(msg => {
+            msg.classList.remove('show');
+            msg.classList.add('fade');
+            setTimeout(() => msg.remove(), 500); // espera a que se desvanezca
+        });
+    }, 2000);
+</script>
+{% endblock %}

@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Agendar Reunión - Admin{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+<style>
+    .form-container {
+        background-color: #e6f0ff;
+        padding: 30px;
+        border-radius: 15px;
+        max-width: 500px;
+        margin: 50px auto;
+        box-shadow: 0 0 20px rgba(0, 80, 160, 0.2);
+    }
+
+    h2 {
+        color: #004080;
+        text-align: center;
+        font-weight: bold;
+        margin-bottom: 25px;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+
+    .form-label {
+        font-weight: bold;
+        color: #004080;
+    }
+
+    .form-control, .form-select {
+        border-radius: 8px;
+        border: 1px solid #0071ce;
+    }
+
+    .btn-agendar {
+        background-color: #0071ce;
+        color: white;
+        font-weight: bold;
+        border-radius: 30px;
+        padding: 10px 25px;
+    }
+
+    .btn-agendar:hover {
+        background-color: #005aa7;
+    }
+
+    .btn-volver {
+        background-color: #dc3545;
+        color: white;
+        font-weight: bold;
+        border-radius: 30px;
+        padding: 10px 25px;
+    }
+
+    .btn-volver:hover {
+        background-color: #a71d2a;
+    }
+
+    .btn-group {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h2><i class="bi bi-calendar-plus icon"></i> Agendar Reunión</h2>
+    <form method="POST" action="{{ url_for('agendar_reunion_admin') }}">
+        {{ csrf_token() }}
+        <div class="mb-3">
+            <label class="form-label" for="titulo"><i class="bi bi-card-text icon"></i> Título</label>
+            <input type="text" class="form-control" id="titulo" name="titulo" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label" for="fecha"><i class="bi bi-calendar-date icon"></i> Fecha</label>
+            <input type="date" class="form-control" id="fecha" name="fecha" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label" for="hora"><i class="bi bi-clock icon"></i> Hora</label>
+            <input type="time" class="form-control" id="hora" name="hora" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label" for="participantes">Participantes</label>
+            <select class="form-select select2" id="participantes" name="participantes" multiple required>
+                {% for usuario in usuarios %}
+                    <option value="{{ usuario.id }}">{{ usuario.nombre_completo }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="descripcion"><i class="bi bi-chat-left-dots icon"></i> Descripción</label>
+            <textarea class="form-control" id="descripcion" name="descripcion" rows="4" required></textarea>
+        </div>
+
+        <div class="btn-group">
+            <button type="submit" class="btn btn-agendar">
+                <i class="bi bi-check-circle-fill"></i> Agendar
+            </button>
+            <a href="{{ url_for('panel') }}" class="btn btn-volver">
+                <i class="bi bi-arrow-left-circle-fill"></i> Volver
+            </a>
+        </div>
+    </form>
+</div>
+{% block scripts %}
+<!-- jQuery (Select2 depende de él) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('.select2').select2({
+            placeholder: "Selecciona participantes",
+            width: '100%',
+            language: {
+                noResults: function () {
+                    return "No se encontraron usuarios";
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
+
+{% endblock %}

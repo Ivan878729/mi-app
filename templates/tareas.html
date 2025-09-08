@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Agregar Tarea{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        background-color: rgba(255, 255, 255, 0.95);
+        padding: 30px;
+        border-radius: 12px;
+        max-width: 600px;
+        margin: 50px auto;
+        box-shadow: 0 0 25px rgba(0, 60, 130, 0.4);
+    }
+
+    h2 {
+        color: #0071ce;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 25px;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.15);
+    }
+
+    .form-label {
+        color: #004080;
+        font-weight: 600;
+    }
+
+    .btn-primary {
+        background-color: #0071ce;
+        font-weight: bold;
+    }
+
+    .btn-primary:hover {
+        background-color: #005bb5;
+    }
+
+    .btn-cancelar {
+        background-color: #dc3545;
+        font-weight: bold;
+        margin-left: 10px;
+    }
+
+    .btn-cancelar:hover {
+        background-color: #a71d2a;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h2>Agregar Tarea</h2>
+
+    <form method="POST" enctype="multipart/form-data" autocomplete="off">
+
+        {{ csrf_token() }}
+        
+        <div class="mb-3">
+            <label for="titulo" class="form-label">Título</label>
+            <input type="text" class="form-control" id="titulo" name="titulo" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="fecha" class="form-label">Fecha</label>
+            <input type="date" class="form-control" id="fecha" name="fecha" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="descripcion" class="form-label">Descripción</label>
+            <textarea class="form-control" id="descripcion" name="descripcion" rows="4" required></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label for="archivo" class="form-label">Subir Documento (opcional)</label>
+            <input type="file" class="form-control" id="archivo" name="archivo" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg">
+        </div>
+
+        <div class="d-flex justify-content-center">
+            <button type="submit" class="btn btn-primary">Agregar Tarea</button>
+            <a href="{{ url_for('panel_usuario') }}" class="btn btn-cancelar">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

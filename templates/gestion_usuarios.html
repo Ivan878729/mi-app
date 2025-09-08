@@ -1,0 +1,258 @@
+{% extends "base.html" %}
+
+{% block title %}Gestión de Usuarios{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: url("{{ url_for('static', filename='img/banner-web.gif') }}") no-repeat center center fixed;
+        background-size: cover;
+        position: relative;
+        min-height: 100vh;
+        color: #004080;
+    }
+
+    .overlay {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-color: rgba(0, 60, 130, 0.6);
+        z-index: -1;
+    }
+
+    .gestion-container {
+        position: relative;
+        background-color: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 40px;
+        max-width: 95vw;
+        margin: 50px auto;
+        box-shadow: 0 0 25px rgba(0, 60, 130, 0.5);
+        overflow-x: auto;
+    }
+
+    .logo-muni {
+        display: block;
+        margin: 0 auto 20px auto;
+        max-height: 80px;
+    }
+
+    h2 {
+        text-align: center;
+        color: #0071ce;
+        font-weight: 700;
+        margin-bottom: 30px;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+    }
+
+    /* Estilos para el input de búsqueda */
+    #searchInput {
+        width: 100%;
+        padding: 10px 15px;
+        margin-bottom: 25px;
+        border: 2px solid #0071ce;
+        border-radius: 8px;
+        font-size: 1rem;
+        box-sizing: border-box;
+    }
+
+    /* CONTENEDOR DE SCROLL DE LA TABLA */
+    .table-wrapper {
+        max-height: 400px;
+        overflow-y: auto;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+    }
+
+    table {
+        width: 100%;
+        min-width: 900px;
+        border-collapse: collapse;
+        font-size: 1rem;
+    }
+
+    thead {
+        background: linear-gradient(90deg, #0071ce, #004080);
+        color: white;
+        text-transform: uppercase;
+    }
+
+    /* Sticky Header */
+    thead th {
+        position: sticky;
+        top: 0;
+        background-color: #0071ce;
+        z-index: 2;
+    }
+
+    th, td {
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        text-align: center;
+    }
+
+    tbody tr:nth-child(even) {
+        background-color: #f0f7ff;
+    }
+
+    tbody tr:hover {
+        background-color: #cce5ff;
+        cursor: pointer;
+        color: #004080;
+        font-weight: 600;
+    }
+
+    .btn {
+        font-weight: 600;
+        border-radius: 6px;
+        padding: 5px 12px;
+        font-size: 0.85rem;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-primary {
+        background-color: #0071ce;
+        border: none;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #005bb5;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        border: none;
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background-color: #a71d2a;
+    }
+
+    .me-2 {
+        margin-right: 0.5rem;
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7);
+        }
+        50% {
+            box-shadow: 0 0 15px 5px rgba(0, 123, 255, 0.5);
+        }
+    }
+
+    .add-user-button {
+        display: flex;
+        justify-content: center;
+        margin-top: 25px;
+        gap: 1.5rem;
+    }
+
+    .add-user-button a {
+        font-size: 2.2rem;
+        font-weight: bold;
+        color: #0071ce;
+        text-decoration: none;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        background-color: #e0f0ff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 10px rgba(0, 113, 206, 0.7);
+        animation: pulse 2s infinite;
+        transition: background-color 0.3s ease, color 0.3s ease;
+        cursor: pointer;
+    }
+
+    .add-user-button a:hover {
+        background-color: #0071ce;
+        color: white;
+        box-shadow: 0 0 20px 5px #0071ce;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="overlay"></div>
+<div class="gestion-container">
+    <img src="{{ url_for('static', filename='img/logo-muni.png') }}" alt="Logo Municipalidad de Graneros" class="logo-muni">
+    <h2>Gestión de Usuarios</h2>
+
+    <!-- Input de búsqueda -->
+    <input type="text" id="searchInput" placeholder="Buscar por ID o Nombre Completo..." onkeyup="filterTable()">
+
+    <!-- Tabla con scroll vertical -->
+    <div class="table-wrapper">
+        <table id="usuariosTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre Completo</th>
+                    <th>Usuario</th>
+                    <th>Correo</th>
+                    <th>Departamento</th>
+                    <th>Rol</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for usuario in usuarios %}
+                <tr>
+                    <td>{{ usuario['id'] }}</td>
+                    <td>{{ usuario['nombre_completo'] }}</td>
+                    <td>{{ usuario['usuario'] }}</td>
+                    <td>{{ usuario['correo'] }}</td>
+                    <td>{{ usuario['departamento'] }}</td>
+                    <td>{{ usuario['rol'] }}</td>
+                    <td>
+                        {% if session.rol == 'admin' %}
+                            <a href="{{ url_for('editar_usuario', usuario_id=usuario['id']) }}" class="btn btn-sm btn-primary me-2">Editar</a>
+                        {% else %}
+                            <button class="btn btn-sm btn-primary me-2" disabled title="Solo administradores">Editar</button>
+                        {% endif %}
+                        <form method="POST" action="{{ url_for('eliminar_usuario', usuario_id=usuario['id']) }}" style="display:inline;" onsubmit="return confirm('¿Estás seguro de eliminar este usuario?');">
+                            {{ csrf_token() }}
+                            <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Botón + animado para agregar usuario -->
+    <div class="add-user-button">
+        <a href="{{ url_for('agregar_usuarios') }}" title="Agregar Usuario" aria-label="Agregar Usuario">+</a>
+        <a href="{{ url_for('panel') }}" title="Volver" aria-label="Volver">←</a>
+    </div>
+</div>
+
+<!-- Script para filtrar la tabla -->
+<script>
+function filterTable() {
+    const input = document.getElementById("searchInput");
+    const filter = input.value.toLowerCase();
+    const table = document.getElementById("usuariosTable");
+    const trs = table.tBodies[0].getElementsByTagName("tr");
+
+    for (let i = 0; i < trs.length; i++) {
+        const tdId = trs[i].getElementsByTagName("td")[0];
+        const tdNombre = trs[i].getElementsByTagName("td")[1];
+        if (tdId && tdNombre) {
+            const idText = tdId.textContent || tdId.innerText;
+            const nombreText = tdNombre.textContent || tdNombre.innerText;
+
+            if (idText.toLowerCase().indexOf(filter) > -1 || nombreText.toLowerCase().indexOf(filter) > -1) {
+                trs[i].style.display = "";
+            } else {
+                trs[i].style.display = "none";
+            }
+        }
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Bienvenida{% endblock %}
+{% block body_class %}bg-light-blue{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Fondo degradado animado */
+    body.bg-light-blue {
+        background: linear-gradient(135deg, #0071ce, #00aaff);
+        background-size: 400% 400%;
+        animation: gradientShift 15s ease infinite;
+        color: white;
+    }
+
+    @keyframes gradientShift {
+        0% {background-position: 0% 50%;}
+        50% {background-position: 100% 50%;}
+        100% {background-position: 0% 50%;}
+    }
+
+    /* Logo con animación sutil */
+    .logo-zoom {
+        max-width: 130px;
+        margin-bottom: 20px;
+        animation: zoomInOut 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes zoomInOut {
+        from { transform: scale(1); }
+        to   { transform: scale(1.08); }
+    }
+
+    /* Título de bienvenida */
+    .bienvenida-animada {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 2rem;
+        font-weight: 700;
+        white-space: nowrap;
+        overflow: visible;
+        border-right: .15em solid #fff;
+        animation: blink-caret 0.75s step-end infinite;
+        margin: 0 auto;
+        display: inline-block;
+    }
+
+    @keyframes blink-caret {
+        50% { border-color: transparent }
+    }
+
+    /* Subtítulo motivacional */
+    .subtitulo {
+        font-size: 1.2rem;
+        font-weight: 500;
+        margin-top: 1rem;
+        opacity: 0;
+        animation: fadeIn 1.5s ease-out 0.8s forwards;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+    }
+
+    @keyframes fadeIn {
+        to { opacity: 1; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="text-center mt-5">
+    <!-- Logo -->
+    <img src="{{ url_for('static', filename='img/logo-muni.png') }}" alt="Logo Municipalidad" class="logo-zoom">
+
+    <!-- Título -->
+    <h1 class="bienvenida-animada">¡Bienvenido, {{ nombre }}!</h1>
+
+    <!-- Subtítulo motivacional -->
+    <p class="subtitulo">🌟 ¡Nos alegra tenerte de vuelta! Que tengas un excelente día. 🌟</p>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Redirige al panel principal tras 4 segundos
+    setTimeout(function () {
+        window.location.href = "{{ url_for('panel') }}";
+    }, 4000);
+</script>
+{% endblock %}

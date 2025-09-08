@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block title %}Reuniones - Alcalde{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+<style>
+    .container-reuniones {
+        background-color: #ffffffcc;
+        border-radius: 12px;
+        padding: 30px;
+        max-width: 1000px;
+        margin: 40px auto;
+        box-shadow: 0 0 20px rgba(0, 80, 160, 0.3);
+    }
+
+    h2 {
+        text-align: center;
+        color: #004080;
+        font-weight: bold;
+        margin-bottom: 25px;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.15);
+    }
+
+    .table thead {
+        background-color: #0071ce;
+        color: white;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f0f8ff;
+    }
+
+    .icon {
+        color: #0071ce;
+        margin-right: 8px;
+    }
+
+    .btn-volver {
+        background-color: #dc3545;
+        font-weight: bold;
+        margin-top: 20px;
+    }
+
+    .btn-volver:hover {
+        background-color: #a71d2a;
+    }
+
+    .section-title {
+        margin-top: 30px;
+        color: #004080;
+        font-weight: 600;
+        font-size: 1.25rem;
+    }
+
+    .badge {
+        margin: 2px;
+    }
+
+    @media (max-width: 768px) {
+        .table-responsive {
+            overflow-x: auto;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-reuniones">
+    <h2><i class="bi bi-calendar-event-fill icon"></i> Mis Reuniones</h2>
+
+    <!-- Reuniones creadas por el alcalde -->
+    <div class="section-title"><i class="bi bi-person-check-fill icon"></i>Reuniones que agendé</div>
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th><i class="bi bi-card-text icon"></i>Título</th>
+                    <th><i class="bi bi-calendar2-date-fill icon"></i>Fecha</th>
+                    <th><i class="bi bi-clock-fill icon"></i>Hora</th>
+                    <th><i class="bi bi-people-fill icon"></i>Participantes</th>
+                    <th><i class="bi bi-chat-left-text-fill icon"></i>Descripción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for reunion in creadas %}
+                <tr>
+                    <td>{{ reunion.titulo }}</td>
+                    <td>{{ reunion.fecha }}</td>
+                    <td>{{ reunion.hora }}</td>
+                    <td>
+                        {% for participante in reunion.participantes %}
+                            <span class="badge bg-primary">{{ participante }}</span>
+                        {% endfor %}
+                    </td>
+                    <td>{{ reunion.descripcion }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="text-center">No has creado ninguna reunión aún.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Paginación Reuniones Creadas -->
+        <div class="d-flex justify-content-center my-3">
+            {% if total_creadas > per_page %}
+                <nav>
+                    <ul class="pagination">
+                        {% if page_creadas > 1 %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('reuniones_alcalde', page_creadas=page_creadas-1, page_invitado=page_invitado) }}">
+                                    &laquo; Anterior
+                                </a>
+                            </li>
+                        {% endif %}
+                        {% if page_creadas * per_page < total_creadas %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('reuniones_alcalde', page_creadas=page_creadas+1, page_invitado=page_invitado) }}">
+                                    Siguiente &raquo;
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Reuniones donde fue invitado -->
+    <div class="section-title"><i class="bi bi-person-plus-fill icon"></i>Reuniones a las que fui invitado</div>
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th><i class="bi bi-card-text icon"></i>Título</th>
+                    <th><i class="bi bi-calendar2-date-fill icon"></i>Fecha</th>
+                    <th><i class="bi bi-clock-fill icon"></i>Hora</th>
+                    <th><i class="bi bi-person-badge-fill icon"></i>Agendada por</th>
+                    <th><i class="bi bi-chat-left-text-fill icon"></i>Descripción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for reunion in invitado %}
+                <tr>
+                    <td>{{ reunion.titulo }}</td>
+                    <td>{{ reunion.fecha }}</td>
+                    <td>{{ reunion.hora }}</td>
+                    <td>{{ reunion.creador_nombre }}</td>
+                    <td>{{ reunion.descripcion }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="text-center">No estás invitado a ninguna reunión aún.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Paginación Reuniones Invitado -->
+        <div class="d-flex justify-content-center my-3">
+            {% if total_invitado > per_page %}
+                <nav>
+                    <ul class="pagination">
+                        {% if page_invitado > 1 %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('reuniones_alcalde', page_invitado=page_invitado-1, page_creadas=page_creadas) }}">
+                                    &laquo; Anterior
+                                </a>
+                            </li>
+                        {% endif %}
+                        {% if page_invitado * per_page < total_invitado %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('reuniones_alcalde', page_invitado=page_invitado+1, page_creadas=page_creadas) }}">
+                                    Siguiente &raquo;
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-center">
+        <a href="{{ url_for('panel') }}" class="btn btn-volver">
+            <i class="bi bi-arrow-left-circle-fill"></i> Volver
+        </a>
+    </div>
+</div>
+{% endblock %}

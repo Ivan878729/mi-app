@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block title %}Mis Tareas{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-container {
+        max-width: 800px;
+        max-height: 600px; /* o la altura que quieras */
+        overflow-y: auto; /* scroll vertical solo dentro del contenedor */
+        margin: 50px auto;
+        padding: 30px;
+        background-color: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        box-shadow: 0 0 25px rgba(0, 60, 130, 0.3);
+        text-align: center;
+    }
+
+    h1 {
+        color: #004080;
+        font-weight: 900;
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .btn-volver {
+        background-color: #0071ce;
+        color: white;
+        font-weight: bold;
+        padding: 10px 20px;
+        border-radius: 8px;
+        border: none;
+        margin-bottom: 30px;
+        transition: background-color 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-volver:hover {
+        background-color: #005bb5;
+    }
+
+        .tareas-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: flex-start;
+        /* Para que tenga un ancho máximo y quede centrado */
+        max-width: 920px;  /* 280px * 3 + gaps (20*2) = 920 aprox */
+        margin: 0 auto;
+    }
+
+    .tarea-card {
+        flex: 0 0 calc(33.33% - 20px); /* 3 tarjetas por fila con gap */
+        background: linear-gradient(145deg, #e0f0ff, #c4d8f8);
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 8px 20px rgba(0, 113, 206, 0.15);
+        color: #003366;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        transition: transform 0.35s ease, box-shadow 0.35s ease;
+        cursor: default;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 220px; /* altura mínima para que luzcan uniformes */
+    }
+
+    .tarea-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 35px rgba(0, 113, 206, 0.3);
+    }
+
+    .tarea-title {
+        color: #0071ce;
+        font-weight: 700;
+        font-size: 1.4rem;
+        margin-bottom: 8px;
+    }
+
+    .tarea-fecha {
+        font-size: 1rem;
+        color: #005bb5;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+    }
+
+    .tarea-fecha i {
+        margin-right: 8px;
+        font-size: 1.3rem;
+    }
+
+    .tarea-desc {
+        font-size: 1.05rem;
+        color: #00264d;
+        margin-bottom: 16px;
+        flex-grow: 1; /* Para que la descripción ocupe el espacio disponible */
+    }
+
+    .tarea-archivo a {
+        font-weight: 600;
+        color: #004080;
+        text-decoration: none;
+        font-size: 0.95rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: color 0.3s ease;
+    }
+
+    .tarea-archivo a:hover {
+        color: #00264d;
+        text-decoration: underline;
+    }
+
+    /* Paginación */
+    .pagination {
+        margin-top: 30px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .pagination a, .pagination span {
+        padding: 8px 14px;
+        background-color: #0071ce;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        font-weight: bold;
+        transition: background-color 0.3s;
+    }
+
+    .pagination a:hover {
+        background-color: #005bb5;
+    }
+
+    .pagination .current {
+        background-color: #005bb5;
+        cursor: default;
+    }
+
+    .pagination .disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <h1>Mis tareas</h1>
+
+    <!-- ✅ Botón Volver -->
+    <a href="{{ url_for('panel_usuario') }}" class="btn-volver">
+        <i class="bi bi-arrow-left-circle"></i> Volver
+    </a>
+
+    {% if tareas %}
+    <div class="tareas-grid">
+        {% for tarea in tareas %}
+        <div class="tarea-card">
+            <div class="tarea-title">{{ tarea.titulo }}</div>
+            <div class="tarea-fecha"><i class="bi bi-calendar-event"></i> {{ tarea.fecha }}</div>
+            <div class="tarea-desc">{{ tarea.descripcion }}</div>
+            {% if tarea.archivo %}
+            <div class="tarea-archivo">
+                <a href="{{ url_for('static', filename='uploads/' ~ tarea.archivo) }}" target="_blank">
+                    <i class="bi bi-paperclip"></i> Ver documento
+                </a>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- ✅ Controles de paginación -->
+    {% if total_pages > 1 %}
+    <div class="pagination">
+        <!-- Botón Anterior -->
+        {% if page > 1 %}
+        <a href="{{ url_for('mis_tareas', page=page-1) }}">&laquo; Anterior</a>
+        {% else %}
+        <span class="disabled">&laquo; Anterior</span>
+        {% endif %}
+
+        <!-- Botones numerados -->
+        {% for p in range(1, total_pages + 1) %}
+            {% if p == page %}
+                <span class="current">{{ p }}</span>
+            {% else %}
+                <a href="{{ url_for('mis_tareas', page=p) }}">{{ p }}</a>
+            {% endif %}
+        {% endfor %}
+
+        <!-- Botón Siguiente -->
+        {% if page < total_pages %}
+        <a href="{{ url_for('mis_tareas', page=page+1) }}">Siguiente &raquo;</a>
+        {% else %}
+        <span class="disabled">Siguiente &raquo;</span>
+        {% endif %}
+    </div>
+    {% endif %}
+    {% else %}
+    <p>Aún no tienes tareas asignadas.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}Agendar Reunión{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        max-width: 600px;
+        margin: 50px auto;
+        background: #f3f8ff;
+        padding: 40px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 113, 206, 0.15);
+        font-family: 'Segoe UI', sans-serif;
+    }
+    .form-container h2 {
+        color: #004080;
+        font-size: 2.2rem;
+        font-weight: bold;
+        margin-bottom: 25px;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+    .form-label {
+        font-size: 1rem;
+        color: #003366;
+        font-weight: 600;
+    }
+    .form-control, .form-select, textarea {
+        border-radius: 8px;
+        border: 1px solid #0071ce;
+        padding: 10px;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .form-control:focus, .form-select:focus, textarea:focus {
+        border-color: #005bb5;
+        outline: none;
+        box-shadow: 0 0 5px rgba(0,91,181,0.4);
+    }
+    .btn-submit {
+        background-color: #0071ce;
+        color: white;
+        font-weight: bold;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 8px;
+        margin-right: 10px;
+        transition: background-color 0.3s;
+    }
+    .btn-submit:hover {
+        background-color: #005bb5;
+    }
+    .btn-volver {
+        background-color: #dc3545;
+        color: white;
+        font-weight: bold;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 8px;
+        transition: background-color 0.3s;
+    }
+    .btn-volver:hover {
+        background-color: #a71d2a;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h2><i class="bi bi-calendar-plus"></i> Agendar Reunión</h2>
+    <form method="POST" action="{{ url_for('agendar_reunion') }}">
+        {{ csrf_token() }}
+        <div class="mb-3">
+            <label class="form-label" for="titulo">Título</label>
+            <input class="form-control" type="text" id="titulo" name="titulo" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="fecha">Fecha</label>
+            <input class="form-control" type="date" id="fecha" name="fecha" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="hora">Hora</label>
+            <input class="form-control" type="time" id="hora" name="hora" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="participantes">Participantes</label>
+            <select class="form-select select2" id="participantes" name="participantes" multiple required>
+                {% for u in users %}
+                    <option value="{{ u.id }}">{{ u.nombre_completo }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="descripcion">Descripción</label>
+            <textarea class="form-control" id="descripcion" name="descripcion" rows="4"></textarea>
+        </div>
+        <div class="d-flex justify-content-center">
+            <button type="submit" class="btn-submit"><i class="bi bi-check-circle"></i> Agendar</button>
+            <a href="{{ url_for('panel_usuario') }}" class="btn-volver"><i class="bi bi-arrow-left-circle"></i> Volver</a>
+        </div>
+    </form>
+</div>
+{% block scripts %}
+<!-- jQuery (Select2 depende de él) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('.select2').select2({
+            placeholder: "Selecciona participantes",
+            width: '100%',
+            language: {
+                noResults: function () {
+                    return "No se encontraron usuarios";
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
+
+{% endblock %}

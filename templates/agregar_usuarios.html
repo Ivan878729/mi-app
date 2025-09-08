@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}Agregar Usuario{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        background-color: rgba(255, 255, 255, 0.95);
+        padding: 30px;
+        border-radius: 12px;
+        max-width: 480px;
+        margin: 50px auto;
+        box-shadow: 0 0 25px rgba(0, 60, 130, 0.4);
+    }
+
+    h2 {
+        color: #0071ce;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 25px;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.15);
+    }
+
+    .form-label {
+        color: #004080;
+        font-weight: 600;
+    }
+
+    .btn-primary {
+        background-color: #0071ce;
+        font-weight: bold;
+    }
+
+    .btn-primary:hover {
+        background-color: #005bb5;
+    }
+
+    .btn-volver {
+        background-color: #dc3545;
+        font-weight: bold;
+        margin-left: 10px;
+    }
+
+    .btn-volver:hover {
+        background-color: #a71d2a;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h2>Agregar Usuario</h2>
+
+    <form method="POST" action="{{ url_for('agregar_usuarios') }}" autocomplete="off">
+
+    {{ csrf_token() }}
+    
+    <div class="mb-3">
+        <label for="nombre_completo" class="form-label">Nombre Completo</label>
+        <input type="text" class="form-control" id="nombre_completo" name="nombre_completo" required autocomplete="off">
+    </div>
+
+    <div class="mb-3">
+        <label for="usuario" class="form-label">Usuario</label>
+        <input type="text" class="form-control" id="usuario" name="usuario" required autocomplete="off">
+    </div>
+
+    <div class="mb-3">
+        <label for="correo" class="form-label">Correo Electrónico</label>
+        <input type="email" class="form-control" id="correo" name="correo" required autocomplete="off">
+    </div>
+
+    <div class="mb-3">
+        <label for="departamento" class="form-label">Departamento</label>
+        <select id="departamento" name="departamento" class="form-select" required>
+            <option value="" disabled selected>Seleccione un Departamento</option>
+            <option value="Administración y Finanzas">Administración y Finanzas</option>
+            <option value="Alcaldía">Alcaldía</option>
+            <option value="Comunicaciones">Comunicaciones</option>
+            <option value="Control">Control</option>
+            <option value="Daem">Daem</option>
+            <option value="Dirección de Obras">Dirección de Obras</option>
+            <option value="Dirección de Transito">Dirección de Transito</option>
+            <option value="Dirección de Aseo y Ornato">Dirección de Aseo y Ornato</option>
+            <option value="Dideco">Dideco</option>
+            <option value="Gestión de Personas">Gestión de Personas</option>
+            <option value="Gestión de Riesgos">Gestión de Riesgos</option>
+            <option value="Informática">Informática</option>
+            <option value="Jurídico">Jurídico</option>
+            <option value="Logística">Logística</option>
+            <option value="Partes">Partes</option>
+            <option value="Rentas">Rentas</option>
+            <option value="Seguridad Pública">Seguridad Pública</option>
+            <option value="Secretaria Municipal">Secretaria Municipal</option>
+            <option value="Sesamu">Sesamu</option>
+            <option value="Secplac">Secplac</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="rol" class="form-label">Rol</label>
+        <select class="form-select" id="rol" name="rol" required>
+            <option value="" disabled selected>Seleccione un Rol</option>
+            <option value="admin">Administrador</option>
+            <option value="usuario">Usuario</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="password" class="form-label">Contraseña</label>
+        <input type="password" class="form-control" id="password" name="password" required minlength="6" autocomplete="new-password">
+    </div>
+
+    <div class="mb-3">
+        <label for="confirm_password" class="form-label">Confirmar Contraseña</label>
+        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required minlength="6" autocomplete="new-password">
+    </div>
+
+    <div class="d-flex justify-content-center">
+        <button type="submit" class="btn btn-primary">Agregar Usuario</button>
+        <a href="{{ url_for('gestion_usuarios') }}" class="btn btn-volver">Volver</a>
+    </div>
+</form>
+
+</div>
+{% endblock %}

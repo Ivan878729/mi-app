@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+
+{% block title %}Tareas Publicadas{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-container {
+        max-width: 960px; /* ancho un poco mayor para 3 tarjetas */
+        margin: 50px auto;
+        padding: 30px;
+        background-color: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        box-shadow: 0 0 25px rgba(0, 60, 130, 0.3);
+        text-align: center;
+    }
+
+    .tareas-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: flex-start;
+    }
+
+    .tarea-card {
+        flex: 0 0 calc(33.33% - 20px); /* 3 tarjetas por fila */
+        background-color: #f0f8ff;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 0 15px rgba(0, 113, 206, 0.3);
+        text-align: left;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+    }
+
+    .tarea-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0 25px rgba(0, 113, 206, 0.5);
+    }
+
+    .tarea-title {
+        color: #0071ce;
+        font-weight: 700;
+        font-size: 1.3rem;
+        margin-bottom: 5px;
+    }
+
+    .tarea-fecha {
+        font-size: 0.9rem;
+        color: #005bb5;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+    }
+
+    .tarea-fecha i {
+        margin-right: 6px;
+        font-size: 1.2rem;
+    }
+
+    .tarea-desc {
+        font-size: 1rem;
+        color: #333;
+        margin-bottom: 12px;
+    }
+
+    .tarea-archivo a {
+        font-weight: 600;
+        color: #005bb5;
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+
+    .tarea-archivo a:hover {
+        text-decoration: underline;
+    }
+
+    .btn-revisar, .btn-eliminar {
+        padding: 8px 14px;
+        border-radius: 6px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        margin-right: 8px;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-revisar {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .btn-revisar:hover {
+        background-color: #218838;
+    }
+
+    .btn-eliminar {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .btn-eliminar:hover {
+        background-color: #c82333;
+    }
+
+    .btn-volver {
+        background-color: #0071ce;
+        color: white;
+        font-weight: bold;
+        padding: 10px 20px;
+        border-radius: 8px;
+        border: none;
+        margin-bottom: 30px;
+        transition: background-color 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-volver:hover {
+        background-color: #005bb5;
+    }
+
+    /* Iconos de estado */
+    .badge-revisado,
+    .badge-pendiente {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        color: white;
+        padding: 6px 9px;
+        border-radius: 50%;
+        font-size: 1.2rem;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .badge-revisado {
+        background-color: #28a745;
+    }
+
+    .badge-pendiente {
+        background-color: #ffc107;
+        color: #212529;
+    }
+
+    /* Paginación */
+    .pagination {
+        margin-top: 20px;
+    }
+
+    .page-item.active .page-link {
+        background-color: #0071ce;
+        border-color: #0071ce;
+        color: white;
+    }
+
+    .page-link {
+        color: #0071ce;
+        font-weight: bold;
+    }
+
+    .page-link:hover {
+        color: #005bb5;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <h1><i class="bi bi-clipboard-data"></i> Tareas Publicadas</h1>
+    <!-- ✅ Botón Volver -->
+        <a href="{{ url_for('panel') }}" class="btn-volver">
+            <i class="bi bi-arrow-left-circle"></i> Volver
+        </a>
+
+    {% if tareas %}
+    <div class="tareas-grid">
+        {% for tarea in tareas %}
+        <div class="tarea-card" id="tarea-{{ tarea['id'] }}">
+            {% if tarea['revisada'] == 1 %}
+            <div class="badge-revisado" title="Revisado">
+                <i class="bi bi-check-circle-fill"></i>
+            </div>
+            {% else %}
+            <div class="badge-pendiente" title="Pendiente de revisión">
+                <i class="bi bi-hourglass-split"></i>
+            </div>
+            {% endif %}
+            <div class="tarea-title">{{ tarea['titulo'] }}</div>
+            <div class="tarea-fecha"><i class="bi bi-calendar-event"></i> {{ tarea['fecha'] }}</div>
+            <div class="tarea-desc">{{ tarea['descripcion'] }}</div>
+            {% if tarea['archivo'] %}
+            <div class="tarea-archivo">
+                <a href="{{ url_for('static', filename='uploads/' ~ tarea['archivo']) }}" target="_blank">
+                    <i class="bi bi-paperclip"></i> Ver documento
+                </a>
+            </div>
+            {% endif %}
+            <div class="mt-3">
+                <form style="display:inline;" method="POST" action="{{ url_for('marcar_revisada', tarea_id=tarea['id']) }}">
+                    <button type="submit" class="btn-revisar">
+                        <i class="bi bi-check-lg"></i> Revisar
+                    </button>
+                </form>
+                <form style="display:inline;" method="POST" action="{{ url_for('eliminar_tarea', tarea_id=tarea['id']) }}">
+                    <button type="submit" class="btn-eliminar">
+                        <i class="bi bi-trash"></i> Eliminar
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p>No hay tareas publicadas aún.</p>
+    {% endif %}
+
+    {% if total_pages > 1 %}
+    <nav aria-label="Paginación" style="margin-top: 30px;">
+        <ul class="pagination justify-content-center">
+            {% if page > 1 %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('tareas_alcalde', page=page-1) }}" aria-label="Anterior">
+                    <span aria-hidden="true">&laquo; Anterior</span>
+                </a>
+            </li>
+            {% endif %}
+
+            {% for p in range(1, total_pages + 1) %}
+            <li class="page-item {% if p == page %}active{% endif %}">
+                <a class="page-link" href="{{ url_for('tareas_alcalde', page=p) }}">{{ p }}</a>
+            </li>
+            {% endfor %}
+
+            {% if page < total_pages %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('tareas_alcalde', page=page+1) }}" aria-label="Siguiente">
+                    <span aria-hidden="true">Siguiente &raquo;</span>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Editar Usuario' if editar else 'Registro' }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .login-card {
+        background-color: rgba(255, 255, 255, 0.92);
+        border: none;
+        border-radius: 12px;
+        max-width: 500px;
+        width: 100%;
+    }
+
+    .form-label {
+        color: #004080;
+        font-weight: 500;
+    }
+
+    .btn-login {
+        background-color: #0071ce;
+        color: white;
+        font-weight: bold;
+    }
+
+    .btn-login:hover {
+        background-color: #005bb5;
+    }
+    
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="card login-card shadow-lg p-4">
+    <div class="card-body">
+        <h4 class="card-title mb-4 text-center text-primary">
+            {{ 'Editar Usuario' if editar else 'Registro' }}
+        </h4>
+
+        <form method="POST" autocomplete="off"
+            action="{% if editar %}{{ url_for('editar_usuario', usuario_id=usuario['id']) }}{% else %}{{ url_for('registro') }}{% endif %}">
+            
+            {{ csrf_token() }}
+
+            <div class="mb-3">
+                <label class="form-label">Nombre completo</label>
+                <input type="text" class="form-control" name="nombre_completo" autocomplete="off" required
+                    value="{{ usuario['nombre_completo'] if editar else '' }}">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Usuario</label>
+                <input type="text" class="form-control" name="usuario" autocomplete="off" required
+                    value="{{ usuario['usuario'] if editar else '' }}">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Correo electrónico</label>
+                <input type="email" class="form-control" name="correo" autocomplete="off" required
+                    value="{{ usuario['correo'] if editar else '' }}">
+            </div>
+
+            <div class="mb-3">
+                <label for="departamento" class="form-label">Departamento</label>
+                <select id="departamento" name="departamento" class="form-select" required>
+                    <option value="" disabled selected>Seleccione un Departamento</option>
+                    <option value="Administración y Finanzas">Administración y Finanzas</option>
+                    <option value="Alcaldía">Alcaldía</option>
+                    <option value="Comunicaciones">Comunicaciones</option>
+                    <option value="Control">Control</option>
+                    <option value="Daem">Daem</option>
+                    <option value="Dirección de Obras">Dirección de Obras</option>
+                    <option value="Dirección de Transito">Dirección de Transito</option>
+                    <option value="Dirección de Aseo y Ornato">Dirección de Aseo y Ornato</option>
+                    <option value="Dideco">Dideco</option>
+                    <option value="Gestión de Personas">Gestión de Personas</option>
+                    <option value="Gestión de Riesgos">Gestión de Riesgos</option>
+                    <option value="Informática">Informática</option>
+                    <option value="Jurídico">Jurídico</option>
+                    <option value="Logística">Logística</option>
+                    <option value="Partes">Partes</option>
+                    <option value="Rentas">Rentas</option>
+                    <option value="Seguridad Pública">Seguridad Pública</option>
+                    <option value="Secretaria Municipal">Secretaria Municipal</option>
+                    <option value="Sesamu">Sesamu</option>
+                    <option value="Secplac">Secplac</option>
+                </select>
+            </div>
+
+            {% if not editar %}
+            <div class="mb-3">
+                <label class="form-label">Contraseña</label>
+                <input type="password" class="form-control" name="clave" autocomplete="new-password" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Confirmar contraseña</label>
+                <input type="password" class="form-control" name="confirmar_clave" autocomplete="new-password" required>
+            </div>
+            {% endif %}
+
+            <div class="mb-3">
+                <label class="form-label">Rol</label>
+                <select name="rol" class="form-select" required>
+                    <option value="usuario" {% if editar and usuario['rol'] == 'usuario' %}selected{% endif %}>Usuario</option>
+                    <option value="admin" {% if editar and usuario['rol'] == 'admin' %}selected{% endif %}>Administrador</option>
+                </select>
+            </div>
+
+            <div class="d-flex justify-content-between mt-3">
+                <a href="{{ url_for('gestion_usuarios') }}" class="btn btn-danger">
+                    Volver
+                </a>
+                <button type="submit" class="btn btn-login">
+                    {{ 'Actualizar Usuario' if editar else 'Registrarse' }}
+                </button>
+            </div>
+        </form>
+        
+{% endblock %}

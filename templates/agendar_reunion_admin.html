@@ -69,7 +69,7 @@
 <div class="form-container">
     <h2><i class="bi bi-calendar-plus icon"></i> Agendar Reunión</h2>
     <form method="POST" action="{{ url_for('agendar_reunion_admin') }}">
-        {{ csrf_token() }}
+
         <div class="mb-3">
             <label class="form-label" for="titulo"><i class="bi bi-card-text icon"></i> Título</label>
             <input type="text" class="form-control" id="titulo" name="titulo" required>

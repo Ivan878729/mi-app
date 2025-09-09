@@ -9,8 +9,8 @@ from flask_talisman import Talisman
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'  # Reemplaza por una segura
-csrf = CSRFProtect(app)
-Talisman(app, content_security_policy=None)  # o define tu política CSP
+#csrf = CSRFProtect(app)#
+#Talisman(app, content_security_policy=None)#  # o define tu política CSP
 app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024  # 20 MB
 
 app.config['SESSION_COOKIE_HTTPONLY'] = True        # Evita acceso a cookies vía JavaScript

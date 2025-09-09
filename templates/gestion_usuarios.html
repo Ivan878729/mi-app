@@ -214,7 +214,7 @@
                             <button class="btn btn-sm btn-primary me-2" disabled title="Solo administradores">Editar</button>
                         {% endif %}
                         <form method="POST" action="{{ url_for('eliminar_usuario', usuario_id=usuario['id']) }}" style="display:inline;" onsubmit="return confirm('¿Estás seguro de eliminar este usuario?');">
-                            {{ csrf_token() }}
+
                             <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
                         </form>
                     </td>

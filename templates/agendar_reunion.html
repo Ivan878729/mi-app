@@ -66,8 +66,8 @@
 {% block content %}
 <div class="form-container">
     <h2><i class="bi bi-calendar-plus"></i> Agendar Reunión</h2>
-    <form method="POST" action="{{ url_for('agendar_reunion') }}">
-        {{ csrf_token() }}
+    <form method="POST" action="{{ url_for('agendar_reunion') }}"> 
+           
         <div class="mb-3">
             <label class="form-label" for="titulo">Título</label>
             <input class="form-control" type="text" id="titulo" name="titulo" required>

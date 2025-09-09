@@ -49,14 +49,8 @@
                 {% endif %}
             {% endwith %}
         </div>
-
-
-
         <!-- Formulario -->
-        <form method="POST" autocomplete="off">
-
-            {{ csrf_token() }}
-
+        <form method="POST" autocomplete="off">            
             <div class="mb-3 text-start">
                 <label for="usuario" class="form-label">Usuario</label>
                 <input type="text" class="form-control" name="usuario" id="usuario" required>

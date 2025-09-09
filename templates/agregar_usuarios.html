@@ -52,8 +52,6 @@
     <h2>Agregar Usuario</h2>
 
     <form method="POST" action="{{ url_for('agregar_usuarios') }}" autocomplete="off">
-
-    {{ csrf_token() }}
     
     <div class="mb-3">
         <label for="nombre_completo" class="form-label">Nombre Completo</label>

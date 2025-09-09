@@ -41,8 +41,6 @@
         <form method="POST" autocomplete="off"
             action="{% if editar %}{{ url_for('editar_usuario', usuario_id=usuario['id']) }}{% else %}{{ url_for('registro') }}{% endif %}">
             
-            {{ csrf_token() }}
-
             <div class="mb-3">
                 <label class="form-label">Nombre completo</label>
                 <input type="text" class="form-control" name="nombre_completo" autocomplete="off" required

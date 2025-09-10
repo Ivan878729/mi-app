@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Calendario de Usuarios - Municipalidad de Graneros{% endblock %}
+
+{% block extra_css %}
+    <!-- FullCalendar CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
+    <style>
+        #calendar {
+            max-width: 900px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        .fc-toolbar-title {
+            font-weight: 700;
+            color: #004080;
+            font-size: 1.8rem;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h2 class="text-center text-primary mb-4">Calendario de Tareas y Reuniones</h2>
+        <div id="calendar"></div>
+    </div>
+{% endblock %}
+
+{% block extra_scripts %}
+    {{ super() }}
+    <!-- FullCalendar JS -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const calendarEl = document.getElementById('calendar');
+
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'es',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+                },
+                navLinks: true,
+                editable: false,
+                dayMaxEvents: true,
+                events: [
+                    // Eventos de ejemplo, luego se reemplaza por datos dinámicos desde backend
+                    {
+                        title: '📅 Reunión con equipo',
+                        start: '2025-09-15T10:00:00',
+                        end: '2025-09-15T11:00:00',
+                        color: '#2980b9'
+                    },
+                    {
+                        title: '✅ Entrega informe tarea',
+                        start: '2025-09-18',
+                        color: '#27ae60'
+                    }
+                ],
+            });
+
+            calendar.render();
+        });
+    </script>
+{% endblock %}

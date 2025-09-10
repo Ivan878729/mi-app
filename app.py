@@ -246,8 +246,6 @@ def login():
 
     return render_template('login.html')
 
-
-
 @app.route('/logout')
 def logout():
     session.clear()
@@ -838,6 +836,10 @@ def reuniones_alcalde():
         total_invitado=total_invitado,
         per_page=per_page
     )
+
+@app.route('/calendario')
+def calendario_usuarios():
+    return render_template('calendario_usuarios.html')
 
 if __name__ == '__main__':
     app.run(host='192.168.1.214', port=5000)

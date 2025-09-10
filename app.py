@@ -6,6 +6,7 @@ from werkzeug.utils import secure_filename
 from flask import jsonify
 from flask_wtf import CSRFProtect
 from flask_talisman import Talisman
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'  # Reemplaza por una segura
@@ -52,6 +53,7 @@ def init_db():
         c.execute("DROP TABLE IF EXISTS reuniones")
         c.execute("DROP TABLE IF EXISTS tareas")
         c.execute("DROP TABLE IF EXISTS usuarios")
+        c.execute("DROP TABLE IF EXISTS login_intentos")  # Asegura recreación
 
         # Crear tabla usuarios
         c.execute('''
@@ -101,6 +103,15 @@ def init_db():
                 usuario_id INTEGER,
                 FOREIGN KEY(reunion_id) REFERENCES reuniones(id),
                 FOREIGN KEY(usuario_id) REFERENCES usuarios(id)
+            )
+        ''')
+
+        # Crear tabla login_intentos
+        c.execute('''
+            CREATE TABLE login_intentos (
+                usuario TEXT PRIMARY KEY,
+                intentos INTEGER DEFAULT 0,
+                bloqueado_hasta TEXT
             )
         ''')
 
@@ -182,8 +193,25 @@ def login():
         usuario = request.form['usuario']
         clave = request.form['clave']
 
+        now = datetime.now()
+
         with sqlite3.connect('database.db') as conn:
             c = conn.cursor()
+
+            # Verificar si el usuario está bloqueado
+            c.execute("SELECT intentos, bloqueado_hasta FROM login_intentos WHERE usuario = ?", (usuario,))
+            intento = c.fetchone()
+
+            if intento:
+                intentos, bloqueado_hasta = intento
+                if bloqueado_hasta:
+                    bloqueado_hasta_dt = datetime.strptime(bloqueado_hasta, "%Y-%m-%d %H:%M:%S.%f")
+                    if bloqueado_hasta_dt > now:
+                        tiempo_restante = int((bloqueado_hasta_dt - now).total_seconds())
+                        flash(f"Cuenta bloqueada. Intenta de nuevo en {tiempo_restante} segundos.", "danger")
+                        return render_template('login.html')
+
+            # Verificar credenciales
             c.execute("SELECT id, usuario, nombre_completo, clave, rol FROM usuarios WHERE usuario = ?", (usuario,))
             user = c.fetchone()
 
@@ -193,11 +221,34 @@ def login():
                 session['nombre_completo'] = user[2]
                 session['rol'] = user[4]
                 flash(f"Bienvenido, {user[2]}!", "success")
+
+                # Resetear intentos fallidos al iniciar sesión correctamente
+                c.execute("DELETE FROM login_intentos WHERE usuario = ?", (usuario,))
+                conn.commit()
+
                 return redirect(url_for('bienvenida'))
             else:
-                flash("Usuario o contraseña incorrectos", "danger")
+                # Manejar intento fallido
+                if intento:
+                    intentos += 1
+                    if intentos >= 5:
+                        bloqueado_hasta_nuevo = now + timedelta(minutes=1)
+                        c.execute("UPDATE login_intentos SET intentos = ?, bloqueado_hasta = ? WHERE usuario = ?",
+                                  (intentos, str(bloqueado_hasta_nuevo), usuario))
+                        flash("Demasiados intentos fallidos. Cuenta bloqueada por 1 minuto.", "danger")
+                    else:
+                        c.execute("UPDATE login_intentos SET intentos = ? WHERE usuario = ?", (intentos, usuario))
+                        restantes = 5 - intentos
+                        flash(f"Usuario o contraseña incorrectos. Te quedan {restantes} intento(s).", "danger")
+                else:
+                    c.execute("INSERT INTO login_intentos (usuario, intentos, bloqueado_hasta) VALUES (?, ?, ?)",
+                              (usuario, 1, None))
+                    flash("Usuario o contraseña incorrectos. Te quedan 4 intento(s).", "danger")
+
+                conn.commit()
 
     return render_template('login.html')
+
 
 @app.route('/logout')
 def logout():

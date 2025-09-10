@@ -187,18 +187,17 @@ def agregar_usuarios():
 
     return render_template('agregar_usuarios.html')
 
+from datetime import datetime, timedelta
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         usuario = request.form['usuario']
         clave = request.form['clave']
-
         now = datetime.now()
 
         with sqlite3.connect('database.db') as conn:
             c = conn.cursor()
-
-            # Verificar si el usuario está bloqueado
             c.execute("SELECT intentos, bloqueado_hasta FROM login_intentos WHERE usuario = ?", (usuario,))
             intento = c.fetchone()
 
@@ -211,7 +210,6 @@ def login():
                         flash(f"Cuenta bloqueada. Intenta de nuevo en {tiempo_restante} segundos.", "danger")
                         return render_template('login.html')
 
-            # Verificar credenciales
             c.execute("SELECT id, usuario, nombre_completo, clave, rol FROM usuarios WHERE usuario = ?", (usuario,))
             user = c.fetchone()
 
@@ -222,19 +220,18 @@ def login():
                 session['rol'] = user[4]
                 flash(f"Bienvenido, {user[2]}!", "success")
 
-                # Resetear intentos fallidos al iniciar sesión correctamente
                 c.execute("DELETE FROM login_intentos WHERE usuario = ?", (usuario,))
                 conn.commit()
 
                 return redirect(url_for('bienvenida'))
             else:
-                # Manejar intento fallido
                 if intento:
                     intentos += 1
                     if intentos >= 5:
                         bloqueado_hasta_nuevo = now + timedelta(minutes=1)
+                        bloqueado_hasta_str = bloqueado_hasta_nuevo.strftime("%Y-%m-%d %H:%M:%S.%f")
                         c.execute("UPDATE login_intentos SET intentos = ?, bloqueado_hasta = ? WHERE usuario = ?",
-                                  (intentos, str(bloqueado_hasta_nuevo), usuario))
+                                  (intentos, bloqueado_hasta_str, usuario))
                         flash("Demasiados intentos fallidos. Cuenta bloqueada por 1 minuto.", "danger")
                     else:
                         c.execute("UPDATE login_intentos SET intentos = ? WHERE usuario = ?", (intentos, usuario))
@@ -248,6 +245,7 @@ def login():
                 conn.commit()
 
     return render_template('login.html')
+
 
 
 @app.route('/logout')

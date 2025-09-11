@@ -14,13 +14,51 @@
             box-shadow: 0 0 15px rgba(0,0,0,0.1);
             padding: 20px;
         }
+
         .fc-toolbar-title {
             font-weight: 700;
             color: #004080;
             font-size: 1.8rem;
         }
+
+        .btn-volver {
+            display: block;
+            margin: 30px auto 10px;
+            background: linear-gradient(45deg, #007bff, #00c6ff);
+            color: white;
+            font-weight: bold;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 30px;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+        }
+
+        .btn-volver:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 123, 255, 0.6);
+            background: linear-gradient(45deg, #0056b3, #0099cc);
+            color: #fff;
+        }
     </style>
 {% endblock %}
+
+{% block content %}
+    <div style="text-align: center;">
+        <div id="calendar" style="margin-bottom: 30px;"></div>
+
+        <!-- Botón rojo animado -->
+        <a href="{{ url_for('panel_usuario') }}"
+           class="btn btn-danger btn-lg px-4 py-2 fw-bold animate__animated animate__fadeInUp"
+           style="border-radius: 50px;">
+            <i class="bi bi-arrow-left-circle me-2"></i> Volver al Panel
+        </a>
+    </div>
+{% endblock %}
+
+
 
 {% block extra_scripts %}
     {{ super() }}
@@ -41,20 +79,11 @@
                 navLinks: true,
                 editable: false,
                 dayMaxEvents: true,
-                events: [
-                    // Eventos de ejemplo, luego se reemplaza por datos dinámicos desde backend
-                    {
-                        title: '📅 Reunión con equipo',
-                        start: '2025-09-15T10:00:00',
-                        end: '2025-09-15T11:00:00',
-                        color: '#2980b9'
-                    },
-                    {
-                        title: '✅ Entrega informe tarea',
-                        start: '2025-09-18',
-                        color: '#27ae60'
-                    }
-                ],
+                events: {{ eventos | tojson | safe }},
+                eventClick: function(info) {
+                    // Muestra la descripción en un alert simple
+                    alert(info.event.title + '\n\n' + (info.event.extendedProps.description || ''));
+                }
             });
 
             calendar.render();

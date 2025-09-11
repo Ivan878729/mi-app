@@ -25,21 +25,26 @@
     }
 
     .btn-volver {
-        background-color: #0071ce;
-        color: white;
-        font-weight: bold;
-        padding: 10px 20px;
-        border-radius: 8px;
-        border: none;
-        margin-bottom: 30px;
-        transition: background-color 0.3s ease;
-        text-decoration: none;
-        display: inline-block;
-    }
+            display: block;
+            margin: 30px auto 10px;
+            background: linear-gradient(45deg, #007bff, #00c6ff);
+            color: white;
+            font-weight: bold;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 30px;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+        }
 
-    .btn-volver:hover {
-        background-color: #005bb5;
-    }
+        .btn-volver:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 123, 255, 0.6);
+            background: linear-gradient(45deg, #0056b3, #0099cc);
+            color: #fff;
+        }
 
         .tareas-grid {
         display: flex;
@@ -157,8 +162,10 @@
     <h1>Mis tareas</h1>
 
     <!-- ✅ Botón Volver -->
-    <a href="{{ url_for('panel_usuario') }}" class="btn-volver">
-        <i class="bi bi-arrow-left-circle"></i> Volver
+    <a href="{{ url_for('panel_usuario') }}"
+           class="btn btn-danger btn-lg px-4 py-2 fw-bold animate__animated animate__fadeInUp"
+           style="border-radius: 50px;">
+        <i class="bi bi-arrow-left-circle me-2"></i> Volver al Panel
     </a>
 
     {% if tareas %}

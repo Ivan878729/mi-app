@@ -35,15 +35,27 @@
         background-color: #005bb5;
     }
 
-    .btn-cancelar {
-        background-color: #dc3545;
-        font-weight: bold;
-        margin-left: 10px;
-    }
+    .btn-volver {
+            display: block;
+            margin: 30px auto 10px;
+            background: linear-gradient(45deg, #007bff, #00c6ff);
+            color: white;
+            font-weight: bold;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 30px;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+        }
 
-    .btn-cancelar:hover {
-        background-color: #a71d2a;
-    }
+        .btn-volver:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 123, 255, 0.6);
+            background: linear-gradient(45deg, #0056b3, #0099cc);
+            color: #fff;
+        }
 </style>
 {% endblock %}
 
@@ -73,9 +85,14 @@
             <input type="file" class="form-control" id="archivo" name="archivo" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg">
         </div>
 
-        <div class="d-flex justify-content-center">
+        <div class="d-flex justify-content-center fw-bold animate__animated animate__fadeInUp"
+            style="border-radius: 50px;">
             <button type="submit" class="btn btn-primary">Agregar Tarea</button>
-            <a href="{{ url_for('panel_usuario') }}" class="btn btn-cancelar">Cancelar</a>
+            <a href="{{ url_for('panel_usuario') }}"
+           class="btn btn-danger btn-lg px-4 py-2 fw-bold animate__animated animate__fadeInUp"
+           style="border-radius: 50px;">
+            <i class="bi bi-arrow-left-circle me-2"></i> Volver al Panel
+        </a>
         </div>
     </form>
 </div>

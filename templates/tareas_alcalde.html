@@ -5,7 +5,7 @@
 {% block extra_css %}
 <style>
     .page-container {
-        max-width: 960px; /* ancho un poco mayor para 3 tarjetas */
+        max-width: 960px;
         margin: 50px auto;
         padding: 30px;
         background-color: rgba(255, 255, 255, 0.95);
@@ -22,7 +22,7 @@
     }
 
     .tarea-card {
-        flex: 0 0 calc(33.33% - 20px); /* 3 tarjetas por fila */
+        flex: 0 0 calc(33.33% - 20px);
         background-color: #f0f8ff;
         padding: 20px;
         border-radius: 12px;
@@ -42,6 +42,19 @@
         font-weight: 700;
         font-size: 1.3rem;
         margin-bottom: 5px;
+    }
+
+    .tarea-autor {
+        font-size: 0.95rem;
+        color: #333;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+    }
+
+    .tarea-autor i {
+        margin-right: 6px;
+        color: #0071ce;
     }
 
     .tarea-fecha {
@@ -122,7 +135,6 @@
         background-color: #005bb5;
     }
 
-    /* Iconos de estado */
     .badge-revisado,
     .badge-pendiente {
         position: absolute;
@@ -144,7 +156,6 @@
         color: #212529;
     }
 
-    /* Paginación */
     .pagination {
         margin-top: 20px;
     }
@@ -169,10 +180,26 @@
 {% block content %}
 <div class="page-container">
     <h1><i class="bi bi-clipboard-data"></i> Tareas Publicadas</h1>
+
     <!-- ✅ Botón Volver -->
-        <a href="{{ url_for('panel') }}" class="btn-volver">
-            <i class="bi bi-arrow-left-circle"></i> Volver
-        </a>
+    <a href="{{ url_for('panel') }}" class="btn-volver">
+        <i class="bi bi-arrow-left-circle"></i> Volver
+    </a>
+
+    <!-- ✅ Formulario de filtro por usuario -->
+    <form method="get" action="{{ url_for('tareas_alcalde') }}" style="margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; gap: 10px; justify-content: center;">
+            <label for="usuario_id" style="font-weight: bold;">Filtrar por usuario:</label>
+            <select name="usuario_id" id="usuario_id" onchange="this.form.submit()" style="padding: 5px 10px; border-radius: 5px;">
+                <option value="">-- Todos --</option>
+                {% for usuario in usuarios %}
+                    <option value="{{ usuario['id'] }}" {% if usuario_filtrado == usuario['id'] %}selected{% endif %}>
+                        {{ usuario['nombre_completo'] }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+    </form>
 
     {% if tareas %}
     <div class="tareas-grid">
@@ -187,9 +214,20 @@
                 <i class="bi bi-hourglass-split"></i>
             </div>
             {% endif %}
+
             <div class="tarea-title">{{ tarea['titulo'] }}</div>
-            <div class="tarea-fecha"><i class="bi bi-calendar-event"></i> {{ tarea['fecha'] }}</div>
+
+            <!-- 👇 Nombre del usuario -->
+            <div class="tarea-autor">
+                <i class="bi bi-person-circle"></i> {{ tarea['nombre_completo'] }}
+            </div>
+
+            <div class="tarea-fecha">
+                <i class="bi bi-calendar-event"></i> {{ tarea['fecha'] }}
+            </div>
+
             <div class="tarea-desc">{{ tarea['descripcion'] }}</div>
+
             {% if tarea['archivo'] %}
             <div class="tarea-archivo">
                 <a href="{{ url_for('static', filename='uploads/' ~ tarea['archivo']) }}" target="_blank">
@@ -197,6 +235,7 @@
                 </a>
             </div>
             {% endif %}
+
             <div class="mt-3">
                 <form style="display:inline;" method="POST" action="{{ url_for('marcar_revisada', tarea_id=tarea['id']) }}">
                     <button type="submit" class="btn-revisar">
@@ -221,7 +260,7 @@
         <ul class="pagination justify-content-center">
             {% if page > 1 %}
             <li class="page-item">
-                <a class="page-link" href="{{ url_for('tareas_alcalde', page=page-1) }}" aria-label="Anterior">
+                <a class="page-link" href="{{ url_for('tareas_alcalde', page=page-1, usuario_id=usuario_filtrado) }}" aria-label="Anterior">
                     <span aria-hidden="true">&laquo; Anterior</span>
                 </a>
             </li>
@@ -229,13 +268,13 @@
 
             {% for p in range(1, total_pages + 1) %}
             <li class="page-item {% if p == page %}active{% endif %}">
-                <a class="page-link" href="{{ url_for('tareas_alcalde', page=p) }}">{{ p }}</a>
+                <a class="page-link" href="{{ url_for('tareas_alcalde', page=p, usuario_id=usuario_filtrado) }}">{{ p }}</a>
             </li>
             {% endfor %}
 
             {% if page < total_pages %}
             <li class="page-item">
-                <a class="page-link" href="{{ url_for('tareas_alcalde', page=page+1) }}" aria-label="Siguiente">
+                <a class="page-link" href="{{ url_for('tareas_alcalde', page=page+1, usuario_id=usuario_filtrado) }}" aria-label="Siguiente">
                     <span aria-hidden="true">Siguiente &raquo;</span>
                 </a>
             </li>

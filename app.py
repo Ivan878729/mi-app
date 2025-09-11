@@ -136,6 +136,15 @@ def init_db():
             'admin'
         )
 
+        usuario = (
+            'Ivan Jaramillo',
+            'I.JARAMILLO',
+            'soporte@municipalidadgraneros.cl',
+            'Informatica',
+            generate_password_hash('123456'),
+            'usuario'
+        )    
+        
         c.execute('''
             INSERT INTO usuarios (nombre_completo, usuario, correo, departamento, clave, rol)
             VALUES (?, ?, ?, ?, ?, ?)
@@ -145,6 +154,11 @@ def init_db():
             INSERT INTO usuarios (nombre_completo, usuario, correo, departamento, clave, rol)
             VALUES (?, ?, ?, ?, ?, ?)
         ''', admin2)
+
+        c.execute('''
+            INSERT INTO usuarios (nombre_completo, usuario, correo, departamento, clave, rol)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', usuario)
 
         conn.commit()
 
@@ -236,11 +250,11 @@ def login():
                     else:
                         c.execute("UPDATE login_intentos SET intentos = ? WHERE usuario = ?", (intentos, usuario))
                         restantes = 5 - intentos
-                        flash(f"Usuario o contraseña incorrectos. Te quedan {restantes} intento(s).", "danger")
+                        flash(f"Usuario o contraseña incorrectos.", "danger")
                 else:
                     c.execute("INSERT INTO login_intentos (usuario, intentos, bloqueado_hasta) VALUES (?, ?, ?)",
                               (usuario, 1, None))
-                    flash("Usuario o contraseña incorrectos. Te quedan 4 intento(s).", "danger")
+                    flash("Usuario o contraseña incorrectos.", "danger")
 
                 conn.commit()
 
@@ -437,28 +451,53 @@ def tareas_alcalde():
     page = request.args.get('page', 1, type=int)
     tareas_por_pagina = 6
     offset = (page - 1) * tareas_por_pagina
+    usuario_filtrado = request.args.get('usuario_id', type=int)
 
     with sqlite3.connect('database.db') as conn:
         conn.row_factory = sqlite3.Row
         c = conn.cursor()
 
-        # Obtener el total de tareas
-        c.execute("SELECT COUNT(*) FROM tareas")
+        # Obtener lista de usuarios para el filtro
+        c.execute("SELECT id, nombre_completo FROM usuarios ORDER BY nombre_completo")
+        usuarios = c.fetchall()
+
+        # Contar tareas (según filtro)
+        if usuario_filtrado:
+            c.execute("SELECT COUNT(*) FROM tareas WHERE usuario_id = ?", (usuario_filtrado,))
+        else:
+            c.execute("SELECT COUNT(*) FROM tareas")
         total_tareas = c.fetchone()[0]
         total_pages = (total_tareas + tareas_por_pagina - 1) // tareas_por_pagina
 
-        # Obtener las tareas paginadas
-        c.execute('''
-            SELECT t.id, t.titulo, t.fecha, t.descripcion, t.archivo, t.revisada, u.nombre_completo 
-            FROM tareas t
-            JOIN usuarios u ON t.usuario_id = u.id
-            ORDER BY t.fecha DESC
-            LIMIT ? OFFSET ?
-        ''', (tareas_por_pagina, offset))
+        # Obtener tareas paginadas (según filtro)
+        if usuario_filtrado:
+            c.execute('''
+                SELECT t.id, t.titulo, t.fecha, t.descripcion, t.archivo, t.revisada, u.nombre_completo 
+                FROM tareas t
+                JOIN usuarios u ON t.usuario_id = u.id
+                WHERE t.usuario_id = ?
+                ORDER BY t.fecha DESC
+                LIMIT ? OFFSET ?
+            ''', (usuario_filtrado, tareas_por_pagina, offset))
+        else:
+            c.execute('''
+                SELECT t.id, t.titulo, t.fecha, t.descripcion, t.archivo, t.revisada, u.nombre_completo 
+                FROM tareas t
+                JOIN usuarios u ON t.usuario_id = u.id
+                ORDER BY t.fecha DESC
+                LIMIT ? OFFSET ?
+            ''', (tareas_por_pagina, offset))
 
         tareas = c.fetchall()
 
-    return render_template('tareas_alcalde.html', tareas=tareas, page=page, total_pages=total_pages)
+    return render_template(
+        'tareas_alcalde.html',
+        tareas=tareas,
+        page=page,
+        total_pages=total_pages,
+        usuarios=usuarios,
+        usuario_filtrado=usuario_filtrado
+    )
 
 @app.route('/accion_tarea', methods=['POST'])
 def accion_tarea():
@@ -837,9 +876,50 @@ def reuniones_alcalde():
         per_page=per_page
     )
 
-@app.route('/calendario')
+@app.route('/calendario/usuario')
 def calendario_usuarios():
-    return render_template('calendario_usuarios.html')
+    if 'usuario_id' not in session:
+        flash("Debes iniciar sesión.", "warning")
+        return redirect(url_for('login'))
+
+    usuario_id = session['usuario_id']
+
+    with sqlite3.connect('database.db') as conn:
+        conn.row_factory = sqlite3.Row
+        c = conn.cursor()
+
+        # Tareas
+        c.execute("SELECT titulo, fecha, descripcion FROM tareas WHERE usuario_id = ?", (usuario_id,))
+        tareas = c.fetchall()
+
+        # Reuniones
+        c.execute("""
+            SELECT r.titulo, r.fecha, r.descripcion
+            FROM reuniones r
+            JOIN reunion_participantes rp ON r.id = rp.reunion_id
+            WHERE rp.usuario_id = ?
+        """, (usuario_id,))
+        reuniones = c.fetchall()
+
+    eventos = []
+
+    for tarea in tareas:
+        eventos.append({
+            "title": f"✅ {tarea['titulo']}",
+            "start": tarea['fecha'],
+            "description": tarea['descripcion'],
+            "color": "#27ae60"
+        })
+
+    for reunion in reuniones:
+        eventos.append({
+            "title": f"📅 {reunion['titulo']}",
+            "start": reunion['fecha'],
+            "description": reunion['descripcion'],
+            "color": "#2980b9"
+        })
+
+    return render_template("calendario_usuarios.html", eventos=eventos)
 
 if __name__ == '__main__':
     app.run(host='192.168.1.214', port=5000)
